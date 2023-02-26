@@ -21,9 +21,12 @@
 
 => #<Sequel::SQLite::Dataset: "SELECT * FROM `posts`">
 
+# ============ read data ============
+
+
 # if we run `db[:posts].first`
 
-=> Sequel::DatabaseError (SQLite3::SQLException: no such table: posts)
+# => Sequel::DatabaseError (SQLite3::SQLException: no such table: posts)
 
 # => db.run "CREATE TABLE fruits (id integer primary key autoincrement, name varchar(255), category varchar(255))"
 
@@ -79,7 +82,7 @@
 
 # => [{:id=>1, :name=>"Apple", :category=>"Fruit"}, {:id=>3, :name=>"Brocoli", :category=>"Vegetable"}, {:id=>5, :name=>"Hammer", :category=>"Tool"}]
 
-# with reges operators
+# with regex operators
 
 # => db[:fruits].where(Sequel.like(:name, "%p%")).order(:name).first
 
@@ -117,6 +120,42 @@
 # db[:fruits].limit(3).offset(2).all
 
 # [{:id=>3, :name=>"Brocoli", :category=>"Vegetable", :price=>44.0}, {:id=>4, :name=>"Tomato", :category=>"Fruit", :price=>65.0}, {:id=>5, :name=>"Hammer", :category=>"Tool", :price=>145.0}]
+
+
+# ============ inserting data ============
+
+
+# db[:fruits].insert(name: "Yogurth", category: "Dairy", price: 33)
+
+# id = db[:fruits].insert(name: "Yogurth", category: "Dairy", price: 330)
+
+# db[:fruits].where(id: id)
+
+# db[:fruits].where(name: "Yogurth").first[:name]
+
+# => "Yogurth"
+
+# select all names
+
+# => db[:fruits].select(:name).all
+
+# [{:name=>"Apple"}, {:name=>"Veal"}, {:name=>"Brocoli"}, {:name=>"Tomato"}, {:name=>"Hammer"}, {:name=>"Screwdriver"}, {:name=>"Onion"}, {:name=>"Grape"}, {:name=>"Sabritas"}, {:name=>"Yogurth"}, {:name=>"Yogurth"}]
+
+# ============ updating data ============
+
+# remember first start with the building block, chunk by chunk, then the execure block in this case the `where` then the `update`
+
+# db[:fruits].where(name: "Yogurth").update(name: "Y")
+
+
+# ============ deleteing data ============
+
+# db[:fruits].where(id: 11).delete
+
+# db[:fruits].where(id: 2..4).delete
+
+
+# ============ models ============
 
 
 
