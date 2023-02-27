@@ -1,0 +1,3 @@
+adapter: postgres
+host: localhost
+port: 5432
