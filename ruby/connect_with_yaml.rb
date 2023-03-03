@@ -37,13 +37,15 @@ db[:products].insert(name: "Onion", category: "Vegetable", price: 77)
 
 list = db[:products].all
 
-class Product
-    attr_accessor :name, :category, :price
-    def initialize data
-        @name = data[:name]
-        @price = data[:price]
-        @category = data[:category]
-    end
+class Product < Sequel::Model
+    # attr_accessor :name, :category, :price
+    # def initialize data
+    #     @name = data[:name]
+    #     @price = data[:price]
+    #     @category = data[:category]
+    # end
 end
 
-p list.map { |item| Product.new item }
+# p list.map { |item| Product.new item }
+
+p Product.all
