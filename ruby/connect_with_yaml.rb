@@ -18,7 +18,7 @@ db.run "CREATE TABLE products (
   );"
 
 
-p db[:products].columns
+db[:products].where(id: 1..2).order(:id)
 
 
 db[:products].insert(name: "Apple", category: "Fruit", price: 12)
@@ -48,4 +48,18 @@ end
 
 # p list.map { |item| Product.new item }
 
-p Product.all
+p Product.all.count
+
+y = Product.new(name: "Yogurth", category: "Dessert", price: 36)
+
+y.save
+
+p Product.all.count
+
+p Product.order(:id).last[:name]
+
+y.destroy
+
+p Product.all.count
+
+p Product.order(:id).last[:name]
