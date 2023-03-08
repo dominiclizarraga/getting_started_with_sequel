@@ -8,7 +8,7 @@ file = YAML.load_file file_path
 
 db = Sequel.connect(file)
 
-db.drop_table?(:products)
+db.drop_table?(:products, cascade: true)
 
 db.run "CREATE TABLE products (
     id SERIAL PRIMARY KEY,
@@ -17,16 +17,20 @@ db.run "CREATE TABLE products (
     category VARCHAR(255)
   );"
 
-db.drop_table?(:orders)
+db.drop_table?(:orders, cascade: true)
 
 db.run "CREATE TABLE orders (
-    id SERIAL PRIMARY KEY
+  id SERIAL PRIMARY KEY,
+  customer_name VARCHAR(255)
   );"
 
-db.drop_table?(:order_items)
+db.drop_table?(:order_details, cascade: true)
 
-db.run "CREATE TABLE order_items (
-    id SERIAL PRIMARY KEY
+db.run "CREATE TABLE order_details (
+  id SERIAL PRIMARY KEY,
+  order_id INTEGER REFERENCES orders(id) ON DELETE CASCADE,
+  product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
+  quantity INTEGER
   );"
 
 
@@ -49,9 +53,11 @@ db[:products].insert(name: "Onion", category: "Vegetable", price: 77)
 
 list = db[:products].all
 
+
+
 class Product < Sequel::Model
-  one_to_many :order_items
-  many_to_many :orders, join_table: :order_items
+  one_to_many :order_details
+  many_to_many :orders, join_table: :order_details
     # attr_accessor :name, :category, :price
     # def initialize data
     #     @name = data[:name]
@@ -62,13 +68,17 @@ end
 
 
 class Order < Sequel::Model
-  one_to_many :order_items
-  many_to_many :products, join_table: :order_items
+  one_to_many :order_details
+  many_to_many :products, join_table: :order_details
 end
 
-class OrderItem < Sequel::Model
+class OrderDetail < Sequel::Model
   many_to_one :order
   many_to_one :product
+
+  def total_price
+    quantity * product.price
+  end
 end
 
 # p list.map { |item| Product.new item }
@@ -81,7 +91,7 @@ end
 
 # p Product.all.count
 
-# p Product.order(:id).last[:name]
+# ap Product.all
 
 # y.destroy
 
@@ -89,15 +99,29 @@ end
 
 # p Product.order(:id).last[:name]
 
-order = Order.new
+order = Order.new(customer_name: "Coke")
 order.save
+ap order.methods.sort
+
 
 products = Product.where(id: [2, 3]).all
 
 products.each do |product|
-  order.add_order_item product: product, quantity: 3
+  order.add_order_detail product: product, quantity: 3
 end
 
-order.order_items.each do |item|
-  puts "#{item.product.name} #{item.quantity}"
+order.order_details.each do |item|
+  puts "#{item.product.name} #{item.quantity} -- #{item.total_price}"
 end
+
+
+puts "-----------------"
+
+# ap list.count
+
+ap order.order_details_dataset.all
+
+puts "-----------------"
+
+ap order.order_details
+

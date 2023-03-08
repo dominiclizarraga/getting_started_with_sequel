@@ -2,5 +2,5 @@ source "https://rubygems.org"
 
 gem "sequel"
 gem "pry"
-# gem "awesome_print"
+gem 'awesome_print', '~> 1.8'
 gem 'pg'
