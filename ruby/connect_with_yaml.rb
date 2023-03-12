@@ -133,8 +133,10 @@ class OrderCreator
 
   def execute
     find_products
-    create_order
-    add_items_to_order
+    # db.transaction do
+      create_order
+      add_items_to_order
+    # end
     print_order
   end
 
