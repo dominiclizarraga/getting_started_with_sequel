@@ -14,7 +14,8 @@ db.run "CREATE TABLE products (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255),
     price FLOAT,
-    category VARCHAR(255)
+    category VARCHAR(255),
+    created_at DATE 
   );"
 
 db.drop_table?(:orders, cascade: true)
@@ -59,6 +60,7 @@ class Product < Sequel::Model
   one_to_many :order_details
   many_to_many :orders, join_table: :order_details
   # plugin :validation_helpers
+
     # attr_accessor :name, :category, :price
     # def initialize data
     #     @name = data[:name]
@@ -74,7 +76,19 @@ class Product < Sequel::Model
       # validates_min_length 3, :category
       # validates_exact_length 3, :category
       validates_numeric :price
-      super
+      super # don't forget to declare this so the chain of inheritance continues
+    end
+
+    # ------------- hooks ------------- 
+    # this validations will run before saving and if something goes wrong, ti will rollback the operation
+    def before_create
+      self.created_at ||= Time.now # memoization
+      super # don't forget this!!!
+    end
+
+    def before_save
+      self.created_at ||= Time.now
+      super # don't forget this!!!
     end
 end
 
@@ -183,9 +197,15 @@ end
 
 # -------------- Sequel validations -------------- 
 
-ap soda = Product.new(name: "soda")
+ap soda = Product.new(name: "soda", category: "Meat", price: 0.1)
 ap soda.valid?
 ap soda.save
+
+sleep(2)
+
+ap soda.name = "Refresco"
+
+ap soda
 
 
 

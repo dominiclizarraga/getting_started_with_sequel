@@ -5,6 +5,8 @@ Sequel.migration do
       String :name
       String :category
       Float :price
+      Time :created_at
+      Time :updated_at
     end
   end
 
