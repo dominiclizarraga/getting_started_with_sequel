@@ -53,17 +53,29 @@ db[:products].insert(name: "Onion", category: "Vegetable", price: 77)
 
 list = db[:products].all
 
-
+Sequel::Model.plugin :validation_helpers
 
 class Product < Sequel::Model
   one_to_many :order_details
   many_to_many :orders, join_table: :order_details
+  # plugin :validation_helpers
     # attr_accessor :name, :category, :price
     # def initialize data
     #     @name = data[:name]
     #     @price = data[:price]
     #     @category = data[:category]
     # end
+
+    def validate
+      # errors.add :name, "should not be null" if name.nil? || name == ""
+      validates_presence [:name, :category, :price], message: "pass a value please"
+      validates_includes ["Vegetable", "Tool", "Dairy", "Meat"], :category
+      # validates_max_length 3, :category
+      # validates_min_length 3, :category
+      # validates_exact_length 3, :category
+      validates_numeric :price
+      super
+    end
 end
 
 
@@ -166,7 +178,22 @@ class OrderCreator
 
 end
 
-OrderCreator.new([[2, 2],[4, 5]]).execute
+# OrderCreator.new([[2, 2],[4, 5]]).execute
+
+
+# -------------- Sequel validations -------------- 
+
+ap soda = Product.new(name: "soda")
+ap soda.valid?
+ap soda.save
+
+
+
+
+
+
+
+
 
 
 
