@@ -99,29 +99,85 @@ end
 
 # p Product.order(:id).last[:name]
 
-order = Order.new(customer_name: "Coke")
-order.save
-ap order.methods.sort
+# order = Order.new(customer_name: "Coke")
+# order.save
+# order.methods.sort
 
 
-products = Product.where(id: [2, 3]).all
+# products = Product.where(id: [2, 3]).all
 
-products.each do |product|
-  order.add_order_detail product: product, quantity: 3
-end
+# products.each do |product|
+#   order.add_order_detail product: product, quantity: 3
+# end
 
-order.order_details.each do |item|
-  puts "#{item.product.name} #{item.quantity} -- #{item.total_price}"
-end
+# order.order_details.each do |item|
+#   "#{item.product.name} #{item.quantity} -- #{item.total_price}"
+# end
 
 
-puts "-----------------"
+# puts "-----------------"
 
 # ap list.count
 
-ap order.order_details_dataset.all
+# order.order_details_dataset
 
-puts "-----------------"
+# puts "-----------------"
 
-ap order.order_details
+# order.order_details
+
+class OrderCreator
+  def initialize data
+    # data structure will be: [[id, quantity], [id, quantity]]
+    @data = data.sort { |item, next_| item[0] <=> next_[0] }
+  end
+
+  def execute
+    find_products
+    create_order
+    add_items_to_order
+    print_order
+  end
+
+  def find_products
+    @products_ids = @data.map { |row| row[0] } 
+    @products = Product.order(:id).where(id: @products_ids).all
+  end
+
+  def create_order
+    @order = Order.new
+    @order.save
+  end
+
+  def add_items_to_order
+    quantities = @data.map { |row| row[1] }
+    order_items_data = @products.zip quantities
+    order_items_data.each do |item|
+      @order.add_order_detail product: item[0], quantity: item[1]
+    end
+  end
+
+  def print_order
+    @order.order_details.each do |item|
+      puts "#{item.product.name} #{item.quantity} -- #{item.total_price}"
+    end
+  end
+
+end
+
+OrderCreator.new([[2, 2],[4, 5]]).execute
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
